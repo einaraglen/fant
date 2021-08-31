@@ -1,19 +1,25 @@
 package no.ntnu.fant_app
 
+import android.annotation.SuppressLint
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.provider.AlarmClock.EXTRA_MESSAGE
 import android.text.Editable
 import android.text.TextWatcher
-import androidx.lifecycle.MutableLiveData
-import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.android.synthetic.main.login.*
+
+//have to use your own ip (ipconfig IPv4) because: android...
+const val API_URL: String = "http://192.168.0.249:8080/api/"
 
 class MainActivity : AppCompatActivity() {
     var isUserIDBad: Boolean = false
     var isPasswordBad: Boolean = false
 
+    @SuppressLint("SetTextI18n")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+        setContentView(R.layout.login)
 
         userid_text.addTextChangedListener(object : TextWatcher {
             //ignore
@@ -38,7 +44,29 @@ class MainActivity : AppCompatActivity() {
         })
 
         login_button.setOnClickListener {
-            //TODO do login call
+            //TODO: make login call, if success go to next activity
+            //val response = Connection.getProducts()
+            //println(response.status)
+
+            /*val queue = Volley.newRequestQueue(this)
+
+            val jsonObjectRequest = JsonArrayRequest(Request.Method.GET, API_URL + "fant", null,
+                { response ->
+                    println(response.toString())
+                    text.text = "Good"
+                },
+                { error ->
+                    println(error.toString())
+                    text.text = "Shit"
+                }
+            )
+            queue.add(jsonObjectRequest)*/
+
+            val intent: Intent = Intent(this, BrowseActivity::class.java).apply {
+                //pass message to the new activity
+                putExtra(EXTRA_MESSAGE, "test")
+            }
+            startActivity(intent)
         }
     }
 
