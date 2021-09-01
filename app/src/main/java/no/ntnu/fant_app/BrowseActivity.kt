@@ -12,8 +12,12 @@ import com.android.volley.toolbox.Volley
 import kotlinx.android.synthetic.main.fant_browse.*
 import org.json.JSONArray
 import org.json.JSONObject
+import java.net.InetAddress
 
-private lateinit var productAdapter: ProductAdapter
+//have to use your own ip (ipconfig IPv4) because: android...
+//const val API_URL: String = "http://192.168.0.249:8080/api/"
+//or this works
+const val API_URL: String = "http://10.0.2.2:8080/api/"
 
 class BrowseActivity : AppCompatActivity() {
 
@@ -40,6 +44,8 @@ class BrowseActivity : AppCompatActivity() {
             }
         )
         queue.add(jsonArrayRequest)
+
+        //val address = InetAddress.getLocalHost().hostAddress
 
         checkUserStatus(goto_login_button)
 

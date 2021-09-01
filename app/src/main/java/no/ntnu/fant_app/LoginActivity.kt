@@ -13,8 +13,7 @@ import com.android.volley.toolbox.StringRequest
 import com.android.volley.toolbox.Volley
 import kotlinx.android.synthetic.main.login.*
 
-//have to use your own ip (ipconfig IPv4) because: android...
-const val API_URL: String = "http://192.168.0.249:8080/api/"
+
 
 class LoginActivity : AppCompatActivity() {
     var isUserIDBad: Boolean = false
