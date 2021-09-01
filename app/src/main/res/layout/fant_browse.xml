@@ -13,13 +13,6 @@
         android:paddingStart="10dp"
         android:paddingEnd="10dp" >
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/app_name"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-
         <Button
             android:id="@+id/goto_login_button"
             android:layout_width="wrap_content"
@@ -38,9 +31,9 @@
         android:background="@color/cardview_shadow_end_color"
         android:text="Items for sale"
         android:textSize="25dp"
+        android:layout_marginStart="10dp"
         app:layout_constraintBottom_toBottomOf="@+id/constraintLayout"
-        app:layout_constraintEnd_toEndOf="@+id/constraintLayout"
-        app:layout_constraintStart_toStartOf="@+id/constraintLayout"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
     <androidx.recyclerview.widget.RecyclerView
