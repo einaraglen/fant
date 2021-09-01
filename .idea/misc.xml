@@ -5,7 +5,10 @@
       <map>
         <entry key="..\:/Users/monga/Skrivebord/WEBTEK HW/fant/app/src/main/res/layout/activity_main.xml" value="0.33" />
         <entry key="..\:/Users/monga/Skrivebord/WEBTEK HW/fant/app/src/main/res/layout/fant_browse.xml" value="0.33" />
-        <entry key="..\:/Users/monga/Skrivebord/WEBTEK HW/fant/app/src/main/res/layout/product_item.xml" value="0.1" />
+        <entry key="..\:/Users/monga/Skrivebord/WEBTEK HW/fant/app/src/main/res/layout/login.xml" value="0.2695035460992908" />
+        <entry key="..\:/Users/monga/Skrivebord/WEBTEK HW/fant/app/src/main/res/layout/logout.xml" value="0.38177083333333334" />
+        <entry key="..\:/Users/monga/Skrivebord/WEBTEK HW/fant/app/src/main/res/layout/product_item.xml" value="0.33" />
+        <entry key="..\:/Users/monga/Skrivebord/WEBTEK HW/fant/app/src/main/res/layout/signin.xml" value="0.3307291666666667" />
       </map>
     </option>
   </component>

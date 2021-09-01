@@ -13,7 +13,7 @@
         android:theme="@style/Theme.Fantapp"
         android:usesCleartextTraffic="true">
         <activity
-            android:name=".MainActivity"
+            android:name=".BrowseActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -22,11 +22,25 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".BrowseActivity"
-            android:parentActivityName=".MainActivity">
+            android:name=".LoginActivity"
+            android:parentActivityName=".BrowseActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".MainActivity"/>
+                android:value=".BrowseActivity"/>
+        </activity>
+        <activity
+            android:name=".SignInActivity"
+            android:parentActivityName=".BrowseActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".BrowseActivity" />
+        </activity>
+        <activity
+            android:name=".LogoutActivity"
+            android:parentActivityName=".BrowseActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".BrowseActivity" />
         </activity>
     </application>
 
