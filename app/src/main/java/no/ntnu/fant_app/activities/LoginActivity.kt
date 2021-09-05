@@ -1,4 +1,4 @@
-package no.ntnu.fant_app
+package no.ntnu.fant_app.activities
 
 import android.annotation.SuppressLint
 import android.content.Intent
@@ -12,7 +12,8 @@ import com.android.volley.Request
 import com.android.volley.toolbox.StringRequest
 import com.android.volley.toolbox.Volley
 import kotlinx.android.synthetic.main.login.*
-
+import no.ntnu.fant_app.R
+import no.ntnu.fant_app.User
 
 
 class LoginActivity : AppCompatActivity() {

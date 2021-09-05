@@ -1,8 +1,7 @@
-package no.ntnu.fant_app
+package no.ntnu.fant_app.activities
 
 import android.content.Intent
 import android.os.Bundle
-import android.provider.AlarmClock
 import android.text.Editable
 import android.text.TextWatcher
 import android.widget.Button
@@ -14,11 +13,11 @@ import com.android.volley.AuthFailureError
 import com.android.volley.Request
 import com.android.volley.Response
 import com.android.volley.toolbox.StringRequest
-import kotlinx.android.synthetic.main.login.*
 import kotlinx.android.synthetic.main.signin.password_text
 import kotlinx.android.synthetic.main.signin.text
 import kotlinx.android.synthetic.main.signin.userid_text
-
+import no.ntnu.fant_app.R
+import no.ntnu.fant_app.User
 
 class SignInActivity : AppCompatActivity()  {
     var isUserIDBad: Boolean = false

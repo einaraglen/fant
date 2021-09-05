@@ -2,20 +2,17 @@ package no.ntnu.fant_app
 
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import android.graphics.Paint
-import android.graphics.drawable.Drawable
-import android.net.Uri
 import android.os.Build
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import kotlinx.android.synthetic.main.product_item.view.*
 import java.io.InputStream
 import java.net.URL
 import android.os.StrictMode
 import android.os.StrictMode.ThreadPolicy
+import no.ntnu.fant_app.activities.API_URL
 
 
 /**
@@ -43,7 +40,7 @@ class ProductAdapter(private val products: MutableList<Product>): RecyclerView.A
         }
     }
 
-    private fun firstImage(photos: MutableList<String>): Bitmap {
+    private fun firstImage(photos: MutableList<String>): Bitmap? {
         if (Build.VERSION.SDK_INT > 9) {
             val policy = ThreadPolicy.Builder().permitAll().build()
             StrictMode.setThreadPolicy(policy)
