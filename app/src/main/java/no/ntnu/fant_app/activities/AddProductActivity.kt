@@ -63,11 +63,15 @@ class AddProductActivity: AppCompatActivity() {
             params.setForceMultipartEntityContentType(true);
             //auth headers added
             client.addHeader("Authorization", "Bearer " + User.authToken)
-
+            val intent: Intent = Intent(this, BrowseActivity::class.java)
             client.post(
                 API_URL + "fant/create", params,
                 object : AsyncHttpResponseHandler() {
                     override fun onSuccess(statusCode: Int, headers: Array<out Header>?, responseBody: ByteArray?) {
+                        if (statusCode === 200) {
+                            //reopen browse view, so that new products can be loaded
+                            startActivity(intent)
+                        }
                         println("Success code: $statusCode")
                     }
 
@@ -118,7 +122,7 @@ class AddProductActivity: AppCompatActivity() {
     }
 
     private fun badTitle(title: String): Boolean {
-        return !title.contains(" ") && !title.isEmpty();
+        return !title.isEmpty();
     }
 
     private fun badPrice(price: String): Boolean {

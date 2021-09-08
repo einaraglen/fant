@@ -73,12 +73,21 @@ class BrowseActivity : AppCompatActivity() {
             }
         }
 
+        info_text.setOnClickListener {
+            //refresh it self
+            //this.recreate();
+            finish();
+            startActivity(getIntent());
+        }
+
         goto_login_button.text = if (!User.isLoggedIn) "Login" else User.uid
 
         add_product_button.setOnClickListener {
-           val intent: Intent = Intent(this, AddProductActivity::class.java)
+            val intent: Intent = Intent(this, AddProductActivity::class.java)
             startActivity(intent)
         }
+
+
 
     }
 
