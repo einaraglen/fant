@@ -48,28 +48,40 @@ class LoginActivity : AppCompatActivity() {
         })
 
         login_button.setOnClickListener {
-            val queue = Volley.newRequestQueue(this)
-            val stringRequest = StringRequest(Request.Method.GET, API_URL + "auth/login?uid=" + userid_text.text.toString() + "&pwd=" + password_text.text.toString(),
-                { response ->
-                    //set token of global user object
-                    User.login(userid_text.text.toString(), response)
-                    //goto browse
-                    val intent: Intent = Intent(this, BrowseActivity::class.java)
-                    startActivity(intent)
-                },
-                { error ->
-                    println(error)
-                    text.text = "Could not login"
-                }
-            )
-            //wait for magic to happen
-            queue.add(stringRequest)
+            login(userid_text.text.toString(), password_text.text.toString(), text)
         }
 
         goto_signin_button.setOnClickListener {
             val intent: Intent = Intent(this, SignInActivity::class.java)
-            startActivity(intent)
+            startActivityForResult(intent, 200)
         }
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == 200) {
+            val uid: String? = data?.getStringExtra("uid")
+            val pwd: String? = data?.getStringExtra("pwd")
+            login(uid, pwd, text)
+        }
+    }
+
+    private fun login(uid: String?, pwd: String?, text: TextView) {
+        val queue = Volley.newRequestQueue(this)
+        val stringRequest = StringRequest(Request.Method.GET, API_URL + "auth/login?uid=" + uid + "&pwd=" + pwd,
+            { response ->
+                //set token of global user object
+                uid?.let { User.login(uid, response) }
+                //goto browse
+                finish()
+            },
+            { error ->
+                println(error)
+                text.text = "Could not login"
+            }
+        )
+        //wait for magic to happen
+        queue.add(stringRequest)
     }
 
     private fun disableLogin(userBad: Boolean, passwordBad: Boolean, button: Button) {

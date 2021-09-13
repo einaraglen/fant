@@ -1,6 +1,7 @@
 package no.ntnu.fant_app.activities
 
 import android.app.Activity
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.text.Editable
@@ -16,29 +17,29 @@ import android.net.Uri
 import android.os.Build
 import android.os.StrictMode
 import androidx.activity.result.contract.ActivityResultContracts
-import java.io.InputStream
+import androidx.appcompat.app.AlertDialog
+import androidx.core.net.toFile
 import java.net.URL
 import com.android.volley.RequestQueue
 import com.loopj.android.http.AsyncHttpResponseHandler
 import com.loopj.android.http.RequestParams
-import java.io.File
-import java.io.FileNotFoundException
 import com.loopj.android.http.AsyncHttpClient
 import cz.msebera.android.httpclient.Header
 import no.ntnu.fant_app.User
+import java.io.*
 
 
 class AddProductActivity: AppCompatActivity() {
     var isTitleBad: Boolean = false
     var isPriceBad: Boolean = false
-    lateinit var file: File
+    var files: MutableList<Uri> = mutableListOf()
     private val client = AsyncHttpClient()
-
-    private var mRequestQueue: RequestQueue? = null
+    private val context = this
 
     private val selectImageFromGalleryResult = registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
         uri?.let {
-            image_view.setImageURI(uri)
+            //val data: ByteArray? = readBytes(this, uri)
+            files.add(uri)
         }
     }
 
@@ -56,29 +57,40 @@ class AddProductActivity: AppCompatActivity() {
             params.put("title", title_field.text.toString())
             params.put("description", description_field.text.toString())
             params.put("price", price_field.text.toString())
-            //TODO: make files a File array and upload all contents
-            //params.put("files", file)
+            //send each file in its own key value pair of "files"
+            //TODO: All hope is lost, spent to many hours trying file upload
+            //files.forEach { file ->  params.put("files", readBytes(this, file))}
 
             //formdata headers added
             params.setForceMultipartEntityContentType(true);
+            //load loginpage for if we get an auth failure
+            val intent: Intent = Intent(this, LoginActivity::class.java)
             //auth headers added
             client.addHeader("Authorization", "Bearer " + User.authToken)
-            val intent: Intent = Intent(this, BrowseActivity::class.java)
             client.post(
                 API_URL + "fant/create", params,
                 object : AsyncHttpResponseHandler() {
                     override fun onSuccess(statusCode: Int, headers: Array<out Header>?, responseBody: ByteArray?) {
                         if (statusCode === 200) {
-                            //reopen browse view, so that new products can be loaded
-                            startActivity(intent)
+                            //go to browse
+                            finish()
                         }
                         println("Success code: $statusCode")
                     }
 
                     override fun onFailure(statusCode: Int, headers: Array<out Header>?, responseBody: ByteArray?, error: Throwable?) {
                         println("Failure code: $statusCode")
-                        println(headers.toString())
-                        println(error)
+                        AlertDialog.Builder(context)
+                            .setTitle("Not logged in")
+                            .setMessage("Proceed to Login page?")
+                            .setPositiveButton(
+                                "Yes"
+                            ) { dialog, which ->
+                                startActivity(intent)
+                            }
+                            .setNegativeButton("No", null)
+                            .setIcon(android.R.drawable.ic_dialog_info)
+                            .show()
                     }
                 }
             )
@@ -107,6 +119,10 @@ class AddProductActivity: AppCompatActivity() {
         })
 
     }
+
+    @Throws(IOException::class)
+    private fun readBytes(context: Context, uri: Uri): ByteArray? =
+        context.contentResolver.openInputStream(uri)?.buffered()?.use { it.readBytes() }
 
     private fun getPickedImage(path: String) : Bitmap? {
         if (Build.VERSION.SDK_INT > 9) {

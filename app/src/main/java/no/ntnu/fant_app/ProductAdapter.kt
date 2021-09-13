@@ -18,7 +18,7 @@ import no.ntnu.fant_app.activities.API_URL
 /**
  * Adapts our data struct to be used in a RecyclerView
  */
-class ProductAdapter(private val products: MutableList<Product>): RecyclerView.Adapter<ProductAdapter.ProductViewHolder>() {
+class ProductAdapter(val products: MutableList<Product>): RecyclerView.Adapter<ProductAdapter.ProductViewHolder>() {
     class ProductViewHolder(itemView: View): RecyclerView.ViewHolder(itemView)
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ProductViewHolder {
@@ -30,6 +30,13 @@ class ProductAdapter(private val products: MutableList<Product>): RecyclerView.A
         notifyItemInserted(products.size - 1)
     }
 
+    fun removeProduct(id: Int) {
+        val index = getIndexOfProduct(id)
+        if (index == -1) return
+        products.removeAt(index)
+        notifyItemRemoved(index)
+    }
+
     override fun onBindViewHolder(holder: ProductViewHolder, position: Int) {
         val currentProduct = products[position]
         holder.itemView.apply {
@@ -38,6 +45,14 @@ class ProductAdapter(private val products: MutableList<Product>): RecyclerView.A
             product_price.text = currentProduct.price.toString() + " kr"
             product_image.setImageBitmap(firstImage(currentProduct.photos))
         }
+    }
+
+    private fun getIndexOfProduct(id: Int): Int {
+        for (i in 0..products.size) {
+            if (products[i].id == id) return i
+        }
+
+        return -1
     }
 
     private fun firstImage(photos: MutableList<String>): Bitmap? {
