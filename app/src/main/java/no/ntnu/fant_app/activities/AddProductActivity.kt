@@ -1,7 +1,5 @@
 package no.ntnu.fant_app.activities
 
-import android.app.Activity
-import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.text.Editable
@@ -14,42 +12,40 @@ import no.ntnu.fant_app.R
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
-import android.os.Build
-import android.os.StrictMode
-import androidx.activity.result.contract.ActivityResultContracts
+import android.os.Environment
+import android.provider.MediaStore
+import android.widget.ImageView
 import androidx.appcompat.app.AlertDialog
-import androidx.core.net.toFile
-import java.net.URL
-import com.android.volley.RequestQueue
+import androidx.core.content.FileProvider
 import com.loopj.android.http.AsyncHttpResponseHandler
 import com.loopj.android.http.RequestParams
 import com.loopj.android.http.AsyncHttpClient
 import cz.msebera.android.httpclient.Header
 import no.ntnu.fant_app.User
 import java.io.*
+import java.text.SimpleDateFormat
+import java.util.*
+import android.widget.RelativeLayout
+import cz.msebera.android.httpclient.entity.mime.content.FileBody
 
 
 class AddProductActivity: AppCompatActivity() {
     var isTitleBad: Boolean = false
     var isPriceBad: Boolean = false
-    var files: MutableList<Uri> = mutableListOf()
+
+    private val REQUEST_IMAGE_CAPTURE = 1
+    val FILEPROVIDER = "no.ntnu.fant_app.fileprovider"
+    var currentPhoto: File? = null
+
+    var files: MutableList<File> = mutableListOf()
     private val client = AsyncHttpClient()
     private val context = this
-
-    private val selectImageFromGalleryResult = registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
-        uri?.let {
-            //val data: ByteArray? = readBytes(this, uri)
-            files.add(uri)
-        }
-    }
-
-    private fun selectImageFromGallery() = selectImageFromGalleryResult.launch("image/*")
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.add_product)
 
-        add_image_button.setOnClickListener { selectImageFromGallery() }
+        add_image_button.setOnClickListener { onCameraClick() }
 
         add_button.setOnClickListener {
             val params = RequestParams()
@@ -58,8 +54,11 @@ class AddProductActivity: AppCompatActivity() {
             params.put("description", description_field.text.toString())
             params.put("price", price_field.text.toString())
             //send each file in its own key value pair of "files"
-            //TODO: All hope is lost, spent to many hours trying file upload
-            //files.forEach { file ->  params.put("files", readBytes(this, file))}
+            println(files.size)
+            files.forEach {
+                println("UPLOADING")
+                params.put("files", it)
+            }
 
             //formdata headers added
             params.setForceMultipartEntityContentType(true);
@@ -120,17 +119,73 @@ class AddProductActivity: AppCompatActivity() {
 
     }
 
-    @Throws(IOException::class)
-    private fun readBytes(context: Context, uri: Uri): ByteArray? =
-        context.contentResolver.openInputStream(uri)?.buffered()?.use { it.readBytes() }
-
-    private fun getPickedImage(path: String) : Bitmap? {
-        if (Build.VERSION.SDK_INT > 9) {
-            val policy = StrictMode.ThreadPolicy.Builder().permitAll().build()
-            StrictMode.setThreadPolicy(policy)
+    fun onCameraClick() {
+        val intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
+        if (intent.resolveActivity(packageManager) != null) {
+            currentPhoto = createImageFile()
+            if (currentPhoto != null) {
+                val photoURI: Uri = FileProvider.getUriForFile(this, FILEPROVIDER, currentPhoto!!)
+                intent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI)
+                startActivityForResult(intent, REQUEST_IMAGE_CAPTURE)
+            }
         }
-        val inputStream: InputStream = URL(path).openConnection().getInputStream()
-        return BitmapFactory.decodeStream(inputStream)
+    }
+
+    private fun createImageFile(): File? {
+        var result: File? = null
+
+        // Create an image file name
+        val timeStamp: String = SimpleDateFormat("yyyyMMdd_HHmmss").format(Date())
+        val imageFileName = "JPEG_" + timeStamp + "_"
+        val storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES)
+        try {
+            result = File.createTempFile(imageFileName, ".jpg", storageDir)
+        } catch (e: IOException) {
+            e.printStackTrace()
+        }
+        return result
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
+            if(currentPhoto != null) {
+                try {
+                    val localCurrentPhoto = currentPhoto!!
+                    val options = BitmapFactory.Options()
+                    options.outWidth = 80
+                    options.outHeight = 80
+                    var bitmap: Bitmap = BitmapFactory.decodeFile((currentPhoto!!.absolutePath), options)
+                    bitmap = Bitmap.createScaledBitmap(bitmap, 250, 250, true);
+                    val current = ImageView(this)
+                    current.setImageBitmap(bitmap)
+                    current.setPadding(0, 0, 0, 10)
+                    current.setOnLongClickListener {
+                        //works for me
+                        AlertDialog.Builder(context)
+                            .setTitle("Remove Image")
+                            .setMessage("Would you like to remove this Image?")
+                            .setPositiveButton(
+                                "Yes"
+                            ) { dialog, which ->
+                                image_flex.removeView(current)
+                                files.remove(localCurrentPhoto)
+                            }
+                            .setNegativeButton("No", null)
+                            .setIcon(android.R.drawable.ic_delete)
+                            .show()
+
+                        false
+                    }
+                    image_flex.addView(current)
+                    files.add(currentPhoto!!)
+                    currentPhoto = null
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
+
+            }
+        }
     }
 
     private fun disableAdd(userBad: Boolean, passwordBad: Boolean, button: Button) {

@@ -16,12 +16,6 @@ import android.view.View
 import no.ntnu.fant_app.*
 import com.google.gson.Gson
 
-
-
-
-//have to use your own ip (ipconfig IPv4) because: android...
-//const val API_URL: String = "http://192.168.0.249:8080/api/"
-//or this works
 const val API_URL: String = "http://10.0.2.2:8080/api/"
 
 class BrowseActivity : AppCompatActivity() {
