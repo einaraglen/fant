@@ -6,6 +6,7 @@ import android.graphics.BitmapFactory
 import android.os.Build
 import android.os.Bundle
 import android.os.StrictMode
+import android.widget.ImageView
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import com.android.volley.Request
@@ -14,6 +15,7 @@ import com.android.volley.toolbox.Volley
 import com.google.gson.Gson
 import com.loopj.android.http.AsyncHttpClient
 import com.loopj.android.http.AsyncHttpResponseHandler
+import com.synnapps.carouselview.ImageListener
 import cz.msebera.android.httpclient.Header
 import kotlinx.android.synthetic.main.fant_browse.*
 import kotlinx.android.synthetic.main.product.*
@@ -35,7 +37,20 @@ class ProductActivity: AppCompatActivity() {
         //here we get the data from the clicked product
         val product = gson.fromJson<Product>(intent.getStringExtra("product"), Product::class.java)
 
-        current_image.setImageBitmap(getImageOf(product.photos, 0))
+        //carousel found at:
+        //https://lobothijau.medium.com/create-carousel-easily-in-android-app-with-carouselview-6cbf5ef500a9
+        val imageListener: ImageListener = object : ImageListener {
+            override fun setImageForPosition(position: Int, imageView: ImageView) {
+                // You can use Glide or Picasso here
+                imageView.setImageBitmap(getImageOf(product.photos, position))
+            }
+        }
+
+        //init carousel
+        carousel.setPageCount(product.photos.size);
+        carousel.setImageListener(imageListener);
+
+        //current_image.setImageBitmap(getImageOf(product.photos, 0))
         title_text.text = product.title
         price_text.text = product.price.toString() + "kr"
         description_text.text = product.description
@@ -75,9 +90,9 @@ class ProductActivity: AppCompatActivity() {
                 }
             )
         }
-
     }
 }
+
 
 private fun getImageOf(photos: MutableList<String>, index: Int): Bitmap? {
     if (Build.VERSION.SDK_INT > 9) {
