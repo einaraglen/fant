@@ -1,5 +1,9 @@
 package no.ntnu.fant_app.activities
 
+<<<<<<< Updated upstream
+=======
+import android.content.Context
+>>>>>>> Stashed changes
 import android.content.Intent
 import android.os.Bundle
 import android.text.Editable
@@ -16,17 +20,29 @@ import android.os.Environment
 import android.provider.MediaStore
 import android.widget.ImageView
 import androidx.appcompat.app.AlertDialog
+<<<<<<< Updated upstream
 import androidx.core.content.FileProvider
+=======
+import java.net.URL
+>>>>>>> Stashed changes
 import com.loopj.android.http.AsyncHttpResponseHandler
 import com.loopj.android.http.RequestParams
 import com.loopj.android.http.AsyncHttpClient
 import cz.msebera.android.httpclient.Header
 import no.ntnu.fant_app.User
 import java.io.*
+<<<<<<< Updated upstream
 import java.text.SimpleDateFormat
 import java.util.*
 import android.widget.RelativeLayout
 import cz.msebera.android.httpclient.entity.mime.content.FileBody
+=======
+import android.os.Environment
+import androidx.core.content.FileProvider
+import androidx.core.net.toFile
+import java.text.SimpleDateFormat
+import java.util.*
+>>>>>>> Stashed changes
 
 
 class AddProductActivity: AppCompatActivity() {
@@ -146,6 +162,7 @@ class AddProductActivity: AppCompatActivity() {
         return result
     }
 
+<<<<<<< Updated upstream
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
@@ -185,6 +202,28 @@ class AddProductActivity: AppCompatActivity() {
                 }
 
             }
+=======
+    private fun createImageFile(): File? {
+        var result: File? = null
+
+        // Create an image file name
+        val timeStamp: String = SimpleDateFormat("yyyyMMdd_HHmmss").format(Date())
+        val imageFileName = "JPEG_" + timeStamp + "_"
+        val storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES)
+        try {
+            result = File.createTempFile(imageFileName, ".jpg", storageDir)
+            println("File is $result")
+        } catch (e: IOException) {
+            e.printStackTrace()
+        }
+        return result
+    }
+
+    private fun getPickedImage(path: String) : Bitmap? {
+        if (Build.VERSION.SDK_INT > 9) {
+            val policy = StrictMode.ThreadPolicy.Builder().permitAll().build()
+            StrictMode.setThreadPolicy(policy)
+>>>>>>> Stashed changes
         }
     }
 
