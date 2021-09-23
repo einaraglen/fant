@@ -38,7 +38,7 @@ class ProductActivity: AppCompatActivity() {
         val product = gson.fromJson<Product>(intent.getStringExtra("product"), Product::class.java)
 
         //carousel found at:
-        //https://lobothijau.medium.com/create-carousel-easily-in-android-app-with-carouselview-6cbf5ef500a9
+        //https://github.com/sayyam/carouselview
         val imageListener: ImageListener = object : ImageListener {
             override fun setImageForPosition(position: Int, imageView: ImageView) {
                 // You can use Glide or Picasso here
@@ -46,8 +46,8 @@ class ProductActivity: AppCompatActivity() {
             }
         }
 
-        //init carousel
-        carousel.setPageCount(product.photos.size);
+        //init carousel show stock photo if no photos exits for current product
+        carousel.setPageCount(if (product.photos.isEmpty()) 1 else product.photos.size);
         carousel.setImageListener(imageListener);
 
         //current_image.setImageBitmap(getImageOf(product.photos, 0))

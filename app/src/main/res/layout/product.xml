@@ -19,6 +19,7 @@
     <com.synnapps.carouselview.CarouselView
         android:id="@+id/carousel"
         android:layout_width="match_parent"
+        app:autoPlay="false"
         android:layout_height="200dp"
         app:fillColor="#FFFFFFFF"
         app:layout_constraintEnd_toEndOf="parent"

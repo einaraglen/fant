@@ -26,7 +26,17 @@ import java.io.*
 import java.text.SimpleDateFormat
 import java.util.*
 import android.widget.RelativeLayout
+import cz.msebera.android.httpclient.HttpEntity
+import cz.msebera.android.httpclient.HttpHeaders
+import cz.msebera.android.httpclient.client.methods.CloseableHttpResponse
+import cz.msebera.android.httpclient.client.methods.HttpPost
+import cz.msebera.android.httpclient.entity.ContentType
+import cz.msebera.android.httpclient.entity.mime.MultipartEntityBuilder
 import cz.msebera.android.httpclient.entity.mime.content.FileBody
+import cz.msebera.android.httpclient.entity.mime.content.StringBody
+import cz.msebera.android.httpclient.impl.client.CloseableHttpClient
+import cz.msebera.android.httpclient.impl.client.HttpClients
+import cz.msebera.android.httpclient.util.EntityUtils
 
 
 class AddProductActivity: AppCompatActivity() {
@@ -38,8 +48,52 @@ class AddProductActivity: AppCompatActivity() {
     var currentPhoto: File? = null
 
     var files: MutableList<File> = mutableListOf()
-    private val client = AsyncHttpClient()
     private val context = this
+
+    //tried everything else, this is only way...
+    private class Requester(private val activity: AppCompatActivity, private val title: String,
+                            private val description: String, private val price: String,
+                            private val photos: MutableList<File>, private val addURL: String): Thread() {
+        override fun run() {
+            super.run()
+            val httpClient: CloseableHttpClient = HttpClients.createDefault()
+            val httpPost: HttpPost = HttpPost(addURL)
+            httpPost.setHeader(HttpHeaders.AUTHORIZATION, "Bearer " + User.authToken)
+            val titleBody: StringBody = StringBody(title, ContentType.TEXT_PLAIN)
+            val descriptionBody: StringBody = StringBody(description, ContentType.TEXT_PLAIN)
+            val priceBody: StringBody = StringBody(price, ContentType.TEXT_PLAIN)
+
+            val builder: MultipartEntityBuilder = MultipartEntityBuilder.create()
+
+            builder.addPart("title", titleBody)
+            builder.addPart("description", descriptionBody)
+            builder.addPart("price", priceBody)
+
+            if (photos.size != 0) {
+                photos.forEach {
+                    val bin: FileBody = FileBody(it)
+                    builder.addPart("files", bin)
+                }
+            }
+
+            val httpEntity: HttpEntity = builder.build()
+
+            httpPost.entity = httpEntity
+
+            try {
+                val response: CloseableHttpResponse = httpClient.execute(httpPost)
+                val resEntity = response.entity
+
+                if (resEntity != null) {
+                    println("Response content length " + resEntity.contentLength)
+                }
+                EntityUtils.consume(resEntity)
+                activity.finish()
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -48,51 +102,9 @@ class AddProductActivity: AppCompatActivity() {
         add_image_button.setOnClickListener { onCameraClick() }
 
         add_button.setOnClickListener {
-            val params = RequestParams()
-
-            params.put("title", title_field.text.toString())
-            params.put("description", description_field.text.toString())
-            params.put("price", price_field.text.toString())
-            //send each file in its own key value pair of "files"
-            println(files.size)
-            files.forEach {
-                println("UPLOADING")
-                params.put("files", it)
-            }
-
-            //formdata headers added
-            params.setForceMultipartEntityContentType(true);
-            //load loginpage for if we get an auth failure
-            val intent: Intent = Intent(this, LoginActivity::class.java)
-            //auth headers added
-            client.addHeader("Authorization", "Bearer " + User.authToken)
-            client.post(
-                API_URL + "fant/create", params,
-                object : AsyncHttpResponseHandler() {
-                    override fun onSuccess(statusCode: Int, headers: Array<out Header>?, responseBody: ByteArray?) {
-                        if (statusCode === 200) {
-                            //go to browse
-                            finish()
-                        }
-                        println("Success code: $statusCode")
-                    }
-
-                    override fun onFailure(statusCode: Int, headers: Array<out Header>?, responseBody: ByteArray?, error: Throwable?) {
-                        println("Failure code: $statusCode")
-                        AlertDialog.Builder(context)
-                            .setTitle("Not logged in")
-                            .setMessage("Proceed to Login page?")
-                            .setPositiveButton(
-                                "Yes"
-                            ) { dialog, which ->
-                                startActivity(intent)
-                            }
-                            .setNegativeButton("No", null)
-                            .setIcon(android.R.drawable.ic_dialog_info)
-                            .show()
-                    }
-                }
-            )
+            val requester: Requester = Requester(this, title_field.text.toString(), description_field.text.toString(),
+                price_field.text.toString(), files, API_URL + "fant/create")
+            requester.start()
         }
 
         title_field.addTextChangedListener(object : TextWatcher {
